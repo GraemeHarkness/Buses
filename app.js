@@ -1,80 +1,115 @@
-var sun = new Image();
-var moon = new Image();
-var earth = new Image();
+var busImage = new Image();
+var stopImage = new Image();
 
-function Bus( index, xi, yi ) {
-    this.index = index;
+function Bus( xi, yi ) {
     this.x = xi;
     this.y = yi;
+    this.speed = 1;
+    this.atAStop = false;
+    this.currentStop = null;
     this.tick = function() {
-
-       this.x += 1;
-       if ( this.x >= 300 ) {
-         this.x = 0;
-       }
+      this.x += this.speed;
+    
+      if ( this.currentStop != null )  {
+          this.speed = 0;   
+          this.currentStop.nPassengersWaiting -= 1;
+          if ( this.currentStop.nPassengersWaiting <= 0 ) {  // we don't have to wait next time
+              this.departedStop();
+          }
+      } else {  // between bus stops
+          this.speed = 1;
+      }
+      
+      if ( this.x >= 1600 ) {
+        this.x -= 1600;
+      }
+    }
+    this.arrivedAtStop = function( stop ) {
+        stop.busCurrentlyStopped = true;
+        this.currentStop = stop;
+    }
+    this.departedStop = function() {
+        this.currentStop.busCurrentlyStopped = false;
+        this.currentStop = null;
+    }
+    
+    this.draw = function ( ctx ) {
+        ctx.drawImage(busImage, this.x-3.5, this.y+3.5);
+        if (this.x>1500) {
+            ctx.drawImage(busImage, this.x-3.5-1600, this.y+3.5);
+        }
     }
 };
 
 function Stop( index, x, y ) {
   this.index = index;
-  this.nWaiting = 4;
+  this.x = x;
+  this.y = y;
+  this.nPassengersWaiting = 100.0;
+  this.busCurrentlyStopped = false;
+  this.tick = function () {}
+  this.draw = function ( ctx ) {
+    for ( var i = 0 ; i < this.nPassengersWaiting ; i+=10 ) {
+      ctx.drawImage(stopImage, this.x-3.5, this.y+i/2);
+    }
+  }
 }
 
-var buses = [ new Bus( 0, 0, 150 ), new Bus( 1, 100, 150 ) ];
-//var bus = new Bus(0,150);
+var buses = [];
+var stops = [];
 
 function init(){
-  sun.src = 'https://mdn.mozillademos.org/files/1456/Canvas_sun.png';
-  moon.src = 'https://mdn.mozillademos.org/files/1443/Canvas_moon.png';
-  earth.src = 'https://mdn.mozillademos.org/files/1429/Canvas_earth.png';
+  busImage.src = 'smallBus.png';
+  stopImage.src = 'stop.png';
+  for ( var x = 0 ; x < 1600 ; x+=400 ) {
+      buses.push( new Bus( x, 150));
+  }
+
+  var stopIndex = 0;
+  for ( var x = 200 ; x < 1600 ; x+=400 ) {
+      stops.push( new Stop( stopIndex++, x, 200 ));
+  }
   window.requestAnimationFrame(draw);
 }
 
 function draw() {
   var canvas = document.getElementById('tutorial');
   var ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,1600,800);
 
-  //ctx.globalCompositeOperation = 'destination-over';
-  ctx.clearRect(0,0,800,300); // clear canvas
-
-  //ctx.fillStyle = 'rgba(0,0,0,0.4)';
-  //ctx.strokeStyle = 'rgba(0,153,255,0.4)';
-
+  // Update buses and draw them
   for (var i = 0 ; i < buses.length ; ++i ) { 
     var bus = buses[i];
-
-    ctx.save();
-    ctx.translate(bus.x, bus.y);
-    ctx.drawImage(moon, -3.5, 3.5);
-    ctx.restore();
+    bus.draw(ctx);
     bus.tick();
   }
 
-  // ctx.save();
-  // ctx.translate(150,150);
-
-  // // Earth
-  // var time = new Date();
-  // ctx.rotate( ((2*Math.PI)/60)*time.getSeconds() + ((2*Math.PI)/60000)*time.getMilliseconds() );
-  // console.log(time.getTime());
-  // ctx.translate(105,0);
-  // ctx.fillRect(0,-12,50,24); // Shadow
-  // ctx.drawImage(earth,-12,-12);
-
-  // // Moon
-  // ctx.save();
-  // ctx.rotate( ((2*Math.PI)/6)*time.getSeconds() + ((2*Math.PI)/6000)*time.getMilliseconds() );
-  // ctx.translate(0,28.5);
-  // ctx.drawImage(moon,-3.5,-3.5);
-  // ctx.restore();
-
-  // ctx.restore();
+  // Update bus stops and draw them
+  for (var i = 0 ; i < stops.length ; ++i ) { 
+    var stop = stops[i];
+    stop.draw(ctx);
+    stop.tick();
+  }
+    
+  // Check for buses arriving at stops
+  for (var i = 0 ; i < buses.length ; ++i ) {
+      var bus = buses[i];
+      for ( var j = 0 ; j < stops.length ; ++j ) {
+          var stop = stops[j];
+          if ( bus.x === stop.x && !stop.busCurrentlyStopped ) {
+              bus.arrivedAtStop( stop );
+          }
+      }
+  }
+    
+  // Passengers arrive at stops
+  for (var i = 0 ; i < stops.length ; ++i ) { 
+    var stop = stops[i];
+    stop.nPassengersWaiting += 0.2;
+  }
+    
+  stops[1].nPassengersWaiting += 0.2;
   
-  // ctx.beginPath();
-  // ctx.arc(150,150,105,0,Math.PI*2,false); // Earth orbit
-  // ctx.stroke();
- 
-  // ctx.drawImage(sun,0,0,300,300);
 
   window.requestAnimationFrame(draw);
 }
