@@ -46,11 +46,21 @@ function Stop( index, x, y ) {
   this.x = x;
   this.y = y;
   this.nPassengersWaiting = 100.0;
+  this.arrivalRate = 0.2;
   this.busCurrentlyStopped = false;
-  this.tick = function () {}
+  this.tick = function () {
+    this.nPassengersWaiting += this.arrivalRate;
+  }
+  this.click = function () {
+      this.arrivalRate += 0.2;
+  }
   this.draw = function ( ctx ) {
+      var seed = 1;
     for ( var i = 0 ; i < this.nPassengersWaiting ; i+=10 ) {
-      ctx.drawImage(stopImage, this.x-3.5, this.y+i/2);
+      var tmp = Math.sin(seed++) * 10000;
+      var randomInZeroToOne = tmp - Math.floor(tmp);
+      var xOffset = (randomInZeroToOne - 0.5)*20;
+      ctx.drawImage(stopImage, this.x+xOffset, this.y+i/2);
     }
   }
 }
@@ -59,8 +69,11 @@ var buses = [];
 var stops = [];
 
 function init(){
+  var canvas = document.getElementById('tutorial');
+  canvas.addEventListener("mousedown", handleMouseDown, false);
+    
   busImage.src = 'smallBus.png';
-  stopImage.src = 'stop.png';
+  stopImage.src = 'person.png';
   for ( var x = 0 ; x < 1600 ; x+=400 ) {
       buses.push( new Bus( x, 150));
   }
@@ -100,18 +113,27 @@ function draw() {
               bus.arrivedAtStop( stop );
           }
       }
-  }
-    
-  // Passengers arrive at stops
-  for (var i = 0 ; i < stops.length ; ++i ) { 
-    var stop = stops[i];
-    stop.nPassengersWaiting += 0.2;
-  }
-    
-  stops[1].nPassengersWaiting += 0.2;
-  
+  }  
 
   window.requestAnimationFrame(draw);
 }
+
+function handleMouseDown(event)
+{
+  var xClicked = event.x;
+  var yClicked = event.y;
+  var canvas = document.getElementById("tutorial");
+  xClicked -= canvas.offsetLeft;
+  yClicked -= canvas.offsetTop;
+    
+  // Find which stop the click is within, if any
+  for ( var i = 0 ; i < stops.length ; ++i ) {
+      var stop = stops[i];      
+      if ((( yClicked - stop.y ) < 100) && ( Math.abs( xClicked - stop.x ) < 100 )) {
+          stop.click();
+      }
+  }
+}
+
 
 init();
