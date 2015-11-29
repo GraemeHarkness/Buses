@@ -52,10 +52,14 @@ function Stop( index, x, y ) {
     this.nPassengersWaiting += this.arrivalRate;
   }
   this.click = function () {
-      this.arrivalRate += 0.2;
+      if (this.arrivalRate < 0.3) {
+          this.arrivalRate += 0.2;
+      } else {
+          this.arrivalRate = 0.2;
+      }
   }
   this.draw = function ( ctx ) {
-      var seed = 1;
+      var seed = this.x;
     for ( var i = 0 ; i < this.nPassengersWaiting ; i+=10 ) {
       var tmp = Math.sin(seed++) * 10000;
       var randomInZeroToOne = tmp - Math.floor(tmp);
