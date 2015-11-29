@@ -1,36 +1,56 @@
 var busImage = new Image();
 var stopImage = new Image();
 
-function Bus( xi, yi ) {
+function Bus(xi, yi) {
     this.x = xi;
     this.y = yi;
     this.speed = 1;
+    this.stuckAtLights = false;
     this.atAStop = false;
     this.currentStop = null;
-    this.tick = function() {
-      this.x += this.speed;
     
-      if ( this.currentStop != null )  {
-          this.speed = 0;   
-          this.currentStop.nPassengersWaiting -= 1;
-          if ( this.currentStop.nPassengersWaiting <= 0 ) {  // we don't have to wait next time
-              this.departedStop();
-          }
-      } else {  // between bus stops
-          this.speed = 1;
-      }
+    this.tick = function () {
+        if (!this.stuckAtLights) {
+            this.x += this.speed;
+        }
+    
+        if (this.currentStop !== null) {
+            this.speed = 0;   
+            this.currentStop.nPassengersWaiting -= 1;
+            if ( this.currentStop.nPassengersWaiting <= 0 ) {  // we don't have to wait next time
+                this.departedStop();
+            }
+        } else {  // between bus stops
+            this.speed = 1;
+        }
       
-      if ( this.x >= 1600 ) {
-        this.x -= 1600;
-      }
+        if (this.x >= 1600) {
+          this.x -= 1600;
+        }
     }
-    this.arrivedAtStop = function( stop ) {
+    
+    this.arrivedAtStop = function (stop) {
         stop.busCurrentlyStopped = true;
         this.currentStop = stop;
     }
-    this.departedStop = function() {
+    
+    this.departedStop = function () {
         this.currentStop.busCurrentlyStopped = false;
         this.currentStop = null;
+    }
+    
+    this.boundingBox = function() {
+        var toReturn = {};
+        toReturn.xmin = this.x - 100;
+        toReturn.xmax = this.x + 100;
+        toReturn.ymin = this.y - 100;
+        toReturn.ymax = this.y + 32;
+        return toReturn;
+    }
+    
+    this.click = function() {
+        this.stuckAtLights = !this.stuckAtLights;
+        console.log("Bus clicked.  Stuck : "+this.stuckAtLights);
     }
     
     this.draw = function ( ctx ) {
@@ -42,31 +62,43 @@ function Bus( xi, yi ) {
 };
 
 function Stop( index, x, y ) {
-  this.index = index;
-  this.x = x;
-  this.y = y;
-  this.nPassengersWaiting = 100.0;
-  this.arrivalRate = 0.2;
-  this.busCurrentlyStopped = false;
-  this.tick = function () {
-    this.nPassengersWaiting += this.arrivalRate;
-  }
-  this.click = function () {
-      if (this.arrivalRate < 0.3) {
-          this.arrivalRate += 0.2;
-      } else {
-          this.arrivalRate = 0.2;
-      }
-  }
-  this.draw = function ( ctx ) {
-      var seed = this.x;
-    for ( var i = 0 ; i < this.nPassengersWaiting ; i+=10 ) {
-      var tmp = Math.sin(seed++) * 10000;
-      var randomInZeroToOne = tmp - Math.floor(tmp);
-      var xOffset = (randomInZeroToOne - 0.5)*20;
-      ctx.drawImage(stopImage, this.x+xOffset, this.y+i/2);
+    this.index = index;
+    this.x = x;
+    this.y = y;
+    this.nPassengersWaiting = 100.0;
+    this.arrivalRate = 0.2;
+    this.busCurrentlyStopped = false;
+    
+    this.tick = function () {
+        this.nPassengersWaiting += this.arrivalRate;
     }
-  }
+    
+    this.click = function () {
+        if (this.arrivalRate < 0.3) {
+            this.arrivalRate += 0.2;
+        } else {
+            this.arrivalRate = 0.2;
+        }
+    }
+    
+    this.boundingBox = function() {
+        var toReturn = {};
+        toReturn.xmin = this.x - 100;
+        toReturn.xmax = this.x + 100;
+        toReturn.ymin = this.y;
+        toReturn.ymax = this.y + 100;
+        return toReturn;
+    }
+
+    this.draw = function ( ctx ) {
+        var seed = this.x;
+        for ( var i = 0 ; i < this.nPassengersWaiting ; i+=10 ) {
+            var tmp = Math.sin(seed++) * 10000;
+            var randomInZeroToOne = tmp - Math.floor(tmp);
+            var xOffset = (randomInZeroToOne - 0.5)*20;
+            ctx.drawImage(stopImage, this.x+xOffset, this.y+i/2);
+        }
+    }
 }
 
 var buses = [];
@@ -124,20 +156,35 @@ function draw() {
 
 function handleMouseDown(event)
 {
-  var xClicked = event.x;
-  var yClicked = event.y;
-  var canvas = document.getElementById("tutorial");
-  xClicked -= canvas.offsetLeft;
-  yClicked -= canvas.offsetTop;
-    
-  // Find which stop the click is within, if any
-  for ( var i = 0 ; i < stops.length ; ++i ) {
-      var stop = stops[i];      
-      if ((( yClicked - stop.y ) < 100) && ( Math.abs( xClicked - stop.x ) < 100 )) {
-          stop.click();
-      }
-  }
+    var xClicked = event.x;
+    var yClicked = event.y;
+    var canvas = document.getElementById("tutorial");
+    xClicked -= canvas.offsetLeft;
+    yClicked -= canvas.offsetTop;
+
+    // Find which stop the click is within, if any
+    for ( var i = 0 ; i < stops.length ; ++i ) {
+        var stop = stops[i];
+        if (inside( xClicked, yClicked, stop.boundingBox() )) {
+            stop.click();
+        }
+    }
+
+    // Find which bus the click is within, if any
+    for ( var i = 0 ; i < buses.length ; ++i ) {
+        var bus = buses[i];
+        if (inside( xClicked, yClicked, bus.boundingBox() )) {
+            bus.click();
+        }
+    }
 }
 
+function inside( x, y, bbox ) {
+    if (x>bbox.xmax) return false;
+    if (x<bbox.xmin) return false;
+    if (y>bbox.ymax) return false;
+    if (y<bbox.ymin) return false;
+    return true;
+}
 
 init();
