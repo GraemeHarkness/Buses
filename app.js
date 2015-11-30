@@ -41,9 +41,9 @@ function Bus(xi, yi) {
     
     this.boundingBox = function() {
         var toReturn = {};
-        toReturn.xmin = this.x - 100;
-        toReturn.xmax = this.x + 100;
-        toReturn.ymin = this.y - 100;
+        toReturn.xmin = this.x - 10;
+        toReturn.xmax = this.x + 42;
+        toReturn.ymin = this.y - 10;
         toReturn.ymax = this.y + 32;
         return toReturn;
     }
@@ -58,8 +58,14 @@ function Bus(xi, yi) {
         if (this.x>1500) {
             ctx.drawImage(busImage, this.x-3.5-1600, this.y+3.5);
         }
+        // debugDraw( ctx, this.boundingBox() );
     }
 };
+
+function debugDraw( ctx, bb ) {
+    ctx.strokeRect(bb.xmin, bb.ymin, (bb.xmax-bb.xmin), (bb.ymax-bb.ymin));
+    ctx.stroke();
+}
 
 function Stop( index, x, y ) {
     this.index = index;
@@ -83,8 +89,8 @@ function Stop( index, x, y ) {
     
     this.boundingBox = function() {
         var toReturn = {};
-        toReturn.xmin = this.x - 100;
-        toReturn.xmax = this.x + 100;
+        toReturn.xmin = this.x - 30;
+        toReturn.xmax = this.x + 62;
         toReturn.ymin = this.y;
         toReturn.ymax = this.y + 100;
         return toReturn;
@@ -98,6 +104,7 @@ function Stop( index, x, y ) {
             var xOffset = (randomInZeroToOne - 0.5)*20;
             ctx.drawImage(stopImage, this.x+xOffset, this.y+i/2);
         }
+        // debugDraw( ctx, this.boundingBox() );
     }
 }
 
