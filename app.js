@@ -60,13 +60,7 @@
             if (this.x > 1500) {
                 ctx.drawImage(busImage, this.x - 3.5 - 1600, this.y + 3.5);
             }
-            // debugDraw( ctx, this.boundingBox() );
         }
-    }
-
-    function debugDraw(ctx, bb) {
-        ctx.strokeRect(bb.xmin, bb.ymin, (bb.xmax - bb.xmin), (bb.ymax - bb.ymin));
-        ctx.stroke();
     }
 
     function Stop(index, x, y) {
@@ -106,7 +100,6 @@
                 var xOffset = (randomInZeroToOne - 0.5) * 20;
                 ctx.drawImage(stopImage, this.x + xOffset, this.y + i / 2);
             }
-            // debugDraw( ctx, this.boundingBox() );
         }
     }
 
