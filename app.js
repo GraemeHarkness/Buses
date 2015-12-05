@@ -6,9 +6,9 @@
     var buses = [];
     var stops = [];
 
-    var Bus = function (xi, yi) {
-        this.x = xi;
-        this.y = yi;
+    var Bus = function (x, y) {
+        this.x = x;
+        this.y = y;
         this.speed = 1;
         this.stuckAtLights = false;
         this.currentStop = null;
