@@ -139,24 +139,20 @@
         ctx.clearRect(0, 0, 1600, 800);
 
         // Update buses and draw them
-        for (var busDrawIndex = 0; busDrawIndex < buses.length; ++busDrawIndex) {
-            var bus = buses[busDrawIndex];
+        for (var bus of buses) {
             bus.draw(ctx);
             bus.tick();
         }
 
         // Update bus stops and draw them
-        for (var stopIndex = 0; stopIndex < stops.length; ++stopIndex) {
-            var stop = stops[stopIndex];
+        for (var stop of stops) {
             stop.draw(ctx);
             stop.tick();
         }
 
         // Check for buses arriving at stops
-        for (var busArrivalIndex = 0; busArrivalIndex < buses.length; ++busArrivalIndex) {
-            var possiblyArrivingBus = buses[busArrivalIndex];
-            for (var j = 0; j < stops.length; ++j) {
-                var stopWithPossibleBus = stops[j];
+        for (var possiblyArrivingBus of buses) {
+            for (var stopWithPossibleBus of stops) {
                 if (possiblyArrivingBus.x() === stopWithPossibleBus.x() && !stopWithPossibleBus.isBusCurrentlyStopped()) {
                     possiblyArrivingBus.arrivedAtStop(stopWithPossibleBus);
                 }
@@ -200,12 +196,12 @@
 
     busImage.src = 'smallBus.png';
     stopImage.src = 'person.png';
-    for (var busInitIndex = 0; busInitIndex < 1600; busInitIndex += 400) {
-        buses.push(bus(busInitIndex, 150));
+    for (var busPosition = 0; busPosition < 1600; busPosition += 400) {
+        buses.push(bus(busPosition, 150));
     }
 
-    for (var stopsInitIndex = 200; stopsInitIndex < 1600; stopsInitIndex += 400) {
-        stops.push(stop(stopsInitIndex, 200));
+    for (var stopPosition = 200; stopPosition < 1600; stopPosition += 400) {
+        stops.push(stop(stopPosition, 200));
     }
     window.requestAnimationFrame(draw);
 
