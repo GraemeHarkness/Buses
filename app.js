@@ -1,7 +1,10 @@
 !function (window, canvas) {
     'use strict';
+
     var busImage = new Image();
     var stopImage = new Image();
+    var buses = [];
+    var stops = [];
 
     function Bus(xi, yi) {
         this.x = xi;
@@ -101,23 +104,6 @@
         }
     }
 
-    var buses = [];
-    var stops = [];
-
-    function init() {
-        canvas.addEventListener("mousedown", handleMouseDown, false);
-
-        busImage.src = 'smallBus.png';
-        stopImage.src = 'person.png';
-        for (var busInitIndex = 0; busInitIndex < 1600; busInitIndex += 400) {
-            buses.push(new Bus(busInitIndex, 150));
-        }
-
-        for (var stopsInitIndex = 200; stopsInitIndex < 1600; stopsInitIndex += 400) {
-            stops.push(new Stop(stopsInitIndex, 200));
-        }
-        window.requestAnimationFrame(draw);
-    }
 
     function draw() {
         var ctx = canvas.getContext('2d');
@@ -151,7 +137,16 @@
         window.requestAnimationFrame(draw);
     }
 
-    function handleMouseDown(event) {
+    function inside(x, y, bbox) {
+        if (x > bbox.xmax) return false;
+        if (x < bbox.xmin) return false;
+        if (y > bbox.ymax) return false;
+        //noinspection RedundantIfStatementJS
+        if (y < bbox.ymin) return false;
+        return true;
+    }
+
+    canvas.addEventListener("mousedown", function (event) {
         var xClicked = event.x;
         var yClicked = event.y;
         xClicked -= canvas.offsetLeft;
@@ -172,16 +167,18 @@
                 bus.click();
             }
         }
+    }, false);
+
+    busImage.src = 'smallBus.png';
+    stopImage.src = 'person.png';
+    for (var busInitIndex = 0; busInitIndex < 1600; busInitIndex += 400) {
+        buses.push(new Bus(busInitIndex, 150));
     }
 
-    function inside(x, y, bbox) {
-        if (x > bbox.xmax) return false;
-        if (x < bbox.xmin) return false;
-        if (y > bbox.ymax) return false;
-        //noinspection RedundantIfStatementJS
-        if (y < bbox.ymin) return false;
-        return true;
+    for (var stopsInitIndex = 200; stopsInitIndex < 1600; stopsInitIndex += 400) {
+        stops.push(new Stop(stopsInitIndex, 200));
     }
+    window.requestAnimationFrame(draw);
 
-    init();
+
 }(window, document.getElementById('tutorial'));
