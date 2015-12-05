@@ -10,12 +10,10 @@
         var speed = 1;
         var stuckAtLights = false;
         var currentStop = null;
-        this.x = x;
-        this.y = y;
 
-        this.tick = function () {
+        var tick = function () {
             if (!stuckAtLights) {
-                this.x += speed;
+                x += speed;
             }
 
             if (currentStop !== null) {
@@ -28,41 +26,52 @@
                 speed = 1;
             }
 
-            if (this.x >= 1600) {
-                this.x -= 1600;
+            if (x >= 1600) {
+                x -= 1600;
             }
         };
 
-        this.arrivedAtStop = function (stop) {
+        var arrivedAtStop = function (stop) {
             stop.busCurrentlyStopped = true;
             currentStop = stop;
         };
 
-        function departedStop() {
+        var departedStop = function () {
             currentStop.busCurrentlyStopped = false;
             currentStop = null;
-        }
+        };
 
-        this.boundingBox = function () {
+        var boundingBox = function () {
             var toReturn = {};
-            toReturn.xmin = this.x - 10;
-            toReturn.xmax = this.x + 42;
-            toReturn.ymin = this.y - 10;
-            toReturn.ymax = this.y + 32;
+            toReturn.xmin = x - 10;
+            toReturn.xmax = x + 42;
+            toReturn.ymin = y - 10;
+            toReturn.ymax = y + 32;
             return toReturn;
         };
 
-        this.click = function () {
+        var click = function () {
             stuckAtLights = !stuckAtLights;
             console.log("Bus clicked.  Stuck : " + stuckAtLights);
         };
 
-        this.draw = function (ctx) {
-            ctx.drawImage(busImage, this.x - 3.5, this.y + 3.5);
-            if (this.x > 1500) {
-                ctx.drawImage(busImage, this.x - 3.5 - 1600, this.y + 3.5);
+        var draw = function (ctx) {
+            ctx.drawImage(busImage, x - 3.5, y + 3.5);
+            if (x > 1500) {
+                ctx.drawImage(busImage, x - 3.5 - 1600, y + 3.5);
             }
-        }
+        };
+
+        return {
+            x: function () {
+                return x;
+            },
+            draw: draw,
+            click: click,
+            tick: tick,
+            arrivedAtStop: arrivedAtStop,
+            boundingBox: boundingBox
+        };
     };
 
     var Stop = function (x, y) {
@@ -128,7 +137,7 @@
             var possiblyArrivingBus = buses[busArrivalIndex];
             for (var j = 0; j < stops.length; ++j) {
                 var stopWithPossibleBus = stops[j];
-                if (possiblyArrivingBus.x === stopWithPossibleBus.x && !stopWithPossibleBus.busCurrentlyStopped) {
+                if (possiblyArrivingBus.x() === stopWithPossibleBus.x && !stopWithPossibleBus.busCurrentlyStopped) {
                     possiblyArrivingBus.arrivedAtStop(stopWithPossibleBus);
                 }
             }
@@ -172,7 +181,7 @@
     busImage.src = 'smallBus.png';
     stopImage.src = 'person.png';
     for (var busInitIndex = 0; busInitIndex < 1600; busInitIndex += 400) {
-        buses.push(new Bus(busInitIndex, 150));
+        buses.push(Bus(busInitIndex, 150));
     }
 
     for (var stopsInitIndex = 200; stopsInitIndex < 1600; stopsInitIndex += 400) {
