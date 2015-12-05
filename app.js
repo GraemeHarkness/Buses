@@ -18,8 +18,8 @@
 
             if (currentStop !== null) {
                 speed = 0;
-                currentStop.nPassengersWaiting -= 1;
-                if (currentStop.nPassengersWaiting <= 0) {  // we don't have to wait next time
+                currentStop.removeWaitingPassenger();
+                if (currentStop.nPassengersWaiting() <= 0) {  // we don't have to wait next time
                     departedStop();
                 }
             } else {  // between bus stops
@@ -32,12 +32,12 @@
         };
 
         var arrivedAtStop = function (stop) {
-            stop.busCurrentlyStopped = true;
+            stop.setBusCurrentlyStopped(true);
             currentStop = stop;
         };
 
         var departedStop = function () {
-            currentStop.busCurrentlyStopped = false;
+            currentStop.setBusCurrentlyStopped(false);
             currentStop = null;
         };
 
@@ -75,41 +75,61 @@
     };
 
     var Stop = function (x, y) {
-        this.x = x;
-        this.y = y;
-        this.nPassengersWaiting = 100.0;
-        this.arrivalRate = 0.2;
-        this.busCurrentlyStopped = false;
+        var nPassengersWaiting = 100.0;
+        var arrivalRate = 0.2;
+        var busCurrentlyStopped = false;
 
-        this.tick = function () {
-            this.nPassengersWaiting += this.arrivalRate;
+        var tick = function () {
+            nPassengersWaiting += arrivalRate;
         };
 
-        this.click = function () {
-            if (this.arrivalRate < 0.3) {
-                this.arrivalRate += 0.2;
+        var click = function () {
+            if (arrivalRate < 0.3) {
+                arrivalRate += 0.2;
             } else {
-                this.arrivalRate = 0.2;
+                arrivalRate = 0.2;
             }
         };
 
-        this.boundingBox = function () {
+        var boundingBox = function () {
             var toReturn = {};
-            toReturn.xmin = this.x - 30;
-            toReturn.xmax = this.x + 62;
-            toReturn.ymin = this.y;
-            toReturn.ymax = this.y + 100;
+            toReturn.xmin = x - 30;
+            toReturn.xmax = x + 62;
+            toReturn.ymin = y;
+            toReturn.ymax = y + 100;
             return toReturn;
         };
 
-        this.draw = function (ctx) {
-            var seed = this.x;
-            for (var i = 0; i < this.nPassengersWaiting; i += 10) {
+        var draw = function (ctx) {
+            var seed = x;
+            for (var i = 0; i < nPassengersWaiting; i += 10) {
                 var tmp = Math.sin(seed++) * 10000;
                 var randomInZeroToOne = tmp - Math.floor(tmp);
                 var xOffset = (randomInZeroToOne - 0.5) * 20;
-                ctx.drawImage(stopImage, this.x + xOffset, this.y + i / 2);
+                ctx.drawImage(stopImage, x + xOffset, y + i / 2);
             }
+        };
+
+        return {
+            x: function () {
+                return x;
+            },
+            isBusCurrentlyStopped: function () {
+                return busCurrentlyStopped;
+            },
+            setBusCurrentlyStopped: function (b) {
+                busCurrentlyStopped = b;
+            },
+            nPassengersWaiting: function () {
+                return nPassengersWaiting;
+            },
+            removeWaitingPassenger: function () {
+                nPassengersWaiting -= 1;
+            },
+            tick: tick,
+            click: click,
+            boundingBox: boundingBox,
+            draw: draw
         }
     };
 
@@ -137,7 +157,7 @@
             var possiblyArrivingBus = buses[busArrivalIndex];
             for (var j = 0; j < stops.length; ++j) {
                 var stopWithPossibleBus = stops[j];
-                if (possiblyArrivingBus.x() === stopWithPossibleBus.x && !stopWithPossibleBus.busCurrentlyStopped) {
+                if (possiblyArrivingBus.x() === stopWithPossibleBus.x() && !stopWithPossibleBus.isBusCurrentlyStopped()) {
                     possiblyArrivingBus.arrivedAtStop(stopWithPossibleBus);
                 }
             }
@@ -185,7 +205,7 @@
     }
 
     for (var stopsInitIndex = 200; stopsInitIndex < 1600; stopsInitIndex += 400) {
-        stops.push(new Stop(stopsInitIndex, 200));
+        stops.push(Stop(stopsInitIndex, 200));
     }
     window.requestAnimationFrame(draw);
 
