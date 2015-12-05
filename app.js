@@ -29,17 +29,17 @@
             if (this.x >= 1600) {
                 this.x -= 1600;
             }
-        }
+        };
 
         this.arrivedAtStop = function (stop) {
             stop.busCurrentlyStopped = true;
             this.currentStop = stop;
-        }
+        };
 
         this.departedStop = function () {
             this.currentStop.busCurrentlyStopped = false;
             this.currentStop = null;
-        }
+        };
 
         this.boundingBox = function () {
             var toReturn = {};
@@ -48,12 +48,12 @@
             toReturn.ymin = this.y - 10;
             toReturn.ymax = this.y + 32;
             return toReturn;
-        }
+        };
 
         this.click = function () {
             this.stuckAtLights = !this.stuckAtLights;
             console.log("Bus clicked.  Stuck : " + this.stuckAtLights);
-        }
+        };
 
         this.draw = function (ctx) {
             ctx.drawImage(busImage, this.x - 3.5, this.y + 3.5);
@@ -62,7 +62,7 @@
             }
             // debugDraw( ctx, this.boundingBox() );
         }
-    };
+    }
 
     function debugDraw(ctx, bb) {
         ctx.strokeRect(bb.xmin, bb.ymin, (bb.xmax - bb.xmin), (bb.ymax - bb.ymin));
@@ -79,7 +79,7 @@
 
         this.tick = function () {
             this.nPassengersWaiting += this.arrivalRate;
-        }
+        };
 
         this.click = function () {
             if (this.arrivalRate < 0.3) {
@@ -87,7 +87,7 @@
             } else {
                 this.arrivalRate = 0.2;
             }
-        }
+        };
 
         this.boundingBox = function () {
             var toReturn = {};
@@ -96,7 +96,7 @@
             toReturn.ymin = this.y;
             toReturn.ymax = this.y + 100;
             return toReturn;
-        }
+        };
 
         this.draw = function (ctx) {
             var seed = this.x;
