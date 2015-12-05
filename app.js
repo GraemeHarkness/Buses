@@ -1,4 +1,4 @@
-!function () {
+!function (window, canvas) {
     'use strict';
     var busImage = new Image();
     var stopImage = new Image();
@@ -114,7 +114,6 @@
     var stops = [];
 
     function init() {
-        var canvas = document.getElementById('tutorial');
         canvas.addEventListener("mousedown", handleMouseDown, false);
 
         busImage.src = 'smallBus.png';
@@ -131,7 +130,6 @@
     }
 
     function draw() {
-        var canvas = document.getElementById('tutorial');
         var ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, 1600, 800);
 
@@ -166,7 +164,6 @@
     function handleMouseDown(event) {
         var xClicked = event.x;
         var yClicked = event.y;
-        var canvas = document.getElementById("tutorial");
         xClicked -= canvas.offsetLeft;
         yClicked -= canvas.offsetTop;
 
@@ -196,4 +193,4 @@
     }
 
     init();
-}();
+}(window, document.getElementById('tutorial'));
