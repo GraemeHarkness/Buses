@@ -209,5 +209,4 @@
     }
     window.requestAnimationFrame(draw);
 
-
 }(window, document.getElementById('tutorial'));
