@@ -6,7 +6,7 @@
     var buses = [];
     var stops = [];
 
-    function Bus(xi, yi) {
+    var Bus = function (xi, yi) {
         this.x = xi;
         this.y = yi;
         this.speed = 1;
@@ -63,9 +63,9 @@
                 ctx.drawImage(busImage, this.x - 3.5 - 1600, this.y + 3.5);
             }
         }
-    }
+    };
 
-    function Stop(x, y) {
+    var Stop = function (x, y) {
         this.x = x;
         this.y = y;
         this.nPassengersWaiting = 100.0;
@@ -102,10 +102,10 @@
                 ctx.drawImage(stopImage, this.x + xOffset, this.y + i / 2);
             }
         }
-    }
+    };
 
 
-    function draw() {
+    var draw = function () {
         var ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, 1600, 800);
 
@@ -135,16 +135,16 @@
         }
 
         window.requestAnimationFrame(draw);
-    }
+    };
 
-    function inside(x, y, bbox) {
+    var inside = function (x, y, bbox) {
         if (x > bbox.xmax) return false;
         if (x < bbox.xmin) return false;
         if (y > bbox.ymax) return false;
         //noinspection RedundantIfStatementJS
         if (y < bbox.ymin) return false;
         return true;
-    }
+    };
 
     canvas.addEventListener("mousedown", function (event) {
         var xClicked = event.x;
