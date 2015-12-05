@@ -6,7 +6,7 @@
     var buses = [];
     var stops = [];
 
-    var Bus = function (x, y) {
+    var bus = function (x, y) {
         var speed = 1;
         var stuckAtLights = false;
         var currentStop = null;
@@ -74,7 +74,7 @@
         };
     };
 
-    var Stop = function (x, y) {
+    var stop = function (x, y) {
         var nPassengersWaiting = 100.0;
         var arrivalRate = 0.2;
         var busCurrentlyStopped = false;
@@ -201,11 +201,11 @@
     busImage.src = 'smallBus.png';
     stopImage.src = 'person.png';
     for (var busInitIndex = 0; busInitIndex < 1600; busInitIndex += 400) {
-        buses.push(Bus(busInitIndex, 150));
+        buses.push(bus(busInitIndex, 150));
     }
 
     for (var stopsInitIndex = 200; stopsInitIndex < 1600; stopsInitIndex += 400) {
-        stops.push(Stop(stopsInitIndex, 200));
+        stops.push(stop(stopsInitIndex, 200));
     }
     window.requestAnimationFrame(draw);
 
