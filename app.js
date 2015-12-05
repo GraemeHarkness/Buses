@@ -7,25 +7,25 @@
     var stops = [];
 
     var Bus = function (x, y) {
+        var speed = 1;
+        var stuckAtLights = false;
+        var currentStop = null;
         this.x = x;
         this.y = y;
-        this.speed = 1;
-        this.stuckAtLights = false;
-        this.currentStop = null;
 
         this.tick = function () {
-            if (!this.stuckAtLights) {
-                this.x += this.speed;
+            if (!stuckAtLights) {
+                this.x += speed;
             }
 
-            if (this.currentStop !== null) {
-                this.speed = 0;
-                this.currentStop.nPassengersWaiting -= 1;
-                if (this.currentStop.nPassengersWaiting <= 0) {  // we don't have to wait next time
-                    this.departedStop();
+            if (currentStop !== null) {
+                speed = 0;
+                currentStop.nPassengersWaiting -= 1;
+                if (currentStop.nPassengersWaiting <= 0) {  // we don't have to wait next time
+                    departedStop();
                 }
             } else {  // between bus stops
-                this.speed = 1;
+                speed = 1;
             }
 
             if (this.x >= 1600) {
@@ -35,13 +35,13 @@
 
         this.arrivedAtStop = function (stop) {
             stop.busCurrentlyStopped = true;
-            this.currentStop = stop;
+            currentStop = stop;
         };
 
-        this.departedStop = function () {
-            this.currentStop.busCurrentlyStopped = false;
-            this.currentStop = null;
-        };
+        function departedStop() {
+            currentStop.busCurrentlyStopped = false;
+            currentStop = null;
+        }
 
         this.boundingBox = function () {
             var toReturn = {};
@@ -53,8 +53,8 @@
         };
 
         this.click = function () {
-            this.stuckAtLights = !this.stuckAtLights;
-            console.log("Bus clicked.  Stuck : " + this.stuckAtLights);
+            stuckAtLights = !stuckAtLights;
+            console.log("Bus clicked.  Stuck : " + stuckAtLights);
         };
 
         this.draw = function (ctx) {
