@@ -142,11 +142,11 @@
 
         // Check for buses arriving at stops
         for (var busArrivalIndex = 0; busArrivalIndex < buses.length; ++busArrivalIndex) {
-            var bus = buses[busArrivalIndex];
+            var possiblyArrivingBus = buses[busArrivalIndex];
             for (var j = 0; j < stops.length; ++j) {
-                var stop = stops[j];
-                if (bus.x === stop.x && !stop.busCurrentlyStopped) {
-                    bus.arrivedAtStop(stop);
+                var stopWithPossibleBus = stops[j];
+                if (possiblyArrivingBus.x === stopWithPossibleBus.x && !stopWithPossibleBus.busCurrentlyStopped) {
+                    possiblyArrivingBus.arrivedAtStop(stopWithPossibleBus);
                 }
             }
         }
