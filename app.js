@@ -8,7 +8,6 @@
         this.y = yi;
         this.speed = 1;
         this.stuckAtLights = false;
-        this.atAStop = false;
         this.currentStop = null;
 
         this.tick = function () {
@@ -63,8 +62,7 @@
         }
     }
 
-    function Stop(index, x, y) {
-        this.index = index;
+    function Stop(x, y) {
         this.x = x;
         this.y = y;
         this.nPassengersWaiting = 100.0;
@@ -115,9 +113,8 @@
             buses.push(new Bus(busInitIndex, 150));
         }
 
-        var stopIndex = 0;
         for (var stopsInitIndex = 200; stopsInitIndex < 1600; stopsInitIndex += 400) {
-            stops.push(new Stop(stopIndex++, stopsInitIndex, 200));
+            stops.push(new Stop(stopsInitIndex, 200));
         }
         window.requestAnimationFrame(draw);
     }
